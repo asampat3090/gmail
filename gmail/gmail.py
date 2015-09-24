@@ -2,6 +2,7 @@ import re
 import imaplib
 
 from mailbox import Mailbox
+from label import Label
 from utf import encode as encode_utf7, decode as decode_utf7
 from exceptions import *
 
@@ -24,6 +25,7 @@ class Gmail():
         self.smtp = None
         self.logged_in = False
         self.mailboxes = {}
+        self.labels = {}
         self.current_mailbox = None
 
 
@@ -56,6 +58,10 @@ class Gmail():
                 mailbox_name = mailbox.split('"/"')[-1].replace('"', '').strip()
                 mailbox = Mailbox(self)
                 mailbox.external_name = mailbox_name
+                if mailbox_name.split('/')[0] !='[Gmail]':
+                    label = Label(self)
+                    label.label_tree = mailbox_name
+                    self.labels[mailbox_name] = label
                 self.mailboxes[mailbox_name] = mailbox
 
     def use_mailbox(self, mailbox):
@@ -138,9 +144,9 @@ class Gmail():
 
     def find(self, mailbox_name="[Gmail]/All Mail", **kwargs):
         box = self.mailbox(mailbox_name)
-        return box.mail(**kwargs)
+        return box.mailt(**kwargs)
 
-    
+
     def copy(self, uid, to_mailbox, from_mailbox=None):
         if from_mailbox:
             self.use_mailbox(from_mailbox)
